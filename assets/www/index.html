@@ -1,0 +1,136 @@
+  <head>
+    <title>Storage Example</title>
+
+	<meta name="viewport" content="width=default-width; user-scalable=no" /> 
+	 <meta http-equiv="Content-type" content="text/html;charset=utf-8">
+	
+	
+    <script type="text/javascript" charset="utf-8" src="cordova-2.6.0.js"></script>
+     <script type="text/javascript" charset="utf-8" src="jquery.min.js"></script> 
+    <script type="text/javascript" charset="utf-8">
+
+	
+	// global variables
+		var db;
+		var shortName = 'DB';
+		var version = '1.0';
+		var displayName = 'Login_Master';
+		var maxSize = 1024; 
+    
+    	
+    // Wait for Cordova to load
+    
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+
+
+    // Cordova is ready
+  
+    function onDeviceReady() {
+        db = window.openDatabase(shortName, version, displayName,maxSize);
+        db.transaction(populateDB, errorCB, successCB);
+    }
+
+    // Populate the database 
+    function populateDB(tx) {
+         tx.executeSql('DROP TABLE IF EXISTS LOGIN');
+         tx.executeSql('CREATE TABLE IF NOT EXISTS LOGIN (USERNAME, PASSWORD)');
+         tx.executeSql('INSERT INTO LOGIN (USERNAME, PASSWORD) VALUES ("admin", "admin")');
+         tx.executeSql('INSERT INTO LOGIN (USERNAME, PASSWORD) VALUES ("parag", "parag")');
+         tx.executeSql('INSERT INTO LOGIN (USERNAME, PASSWORD) VALUES ("nuc", "nuc")');
+    }
+
+    // Transaction error callback
+    
+       function errorCB(tx, err) {
+        alert("Error processing SQL: "+err);
+    }
+
+    // Transaction success callback
+    
+    
+    function successCB() {
+        alert("success! Accessing Database");
+    }
+
+	function check() {
+       
+       
+      // document.forms[0].submit();
+       console.log("Submitting login form");
+      
+     //	db = window.openDatabase("Database", "1.0", "Cordova Demo", 10000000);
+      
+        db.transaction(queryDB,errorCB);
+    }
+    
+    function queryDB(tx)
+    {
+    	tx.executeSql('SELECT * FROM LOGIN',[],querySuccess,queryNotSuccess);
+    	
+    }
+    
+    function queryNotSuccess()
+    {
+    	alert("SQL Query Unsuccessfull");
+    }
+  
+   	
+    function querySuccess(tx, results) {
+	alert("SQL Query Succcess");
+	
+	
+	var x=document.getElementById("uname").value;
+    var y=document.getElementById("pwd").value;
+    
+	var len = results.rows.length;
+     console.log("Login table: " + len + " rows found.");
+    var flag =0;
+     for (var i=0; i<len; i++){
+            
+            var uname = results.rows.item(i).USERNAME;
+            var pwd = results.rows.item(i).PASSWORD;
+            console.log(uname);
+            console.log(pwd);
+            if(uname==x && pwd ==y)
+            {
+            	alert("Login Success");
+            	flag = 1;
+            	break;
+            }
+            
+      }
+	
+	if(flag==1)
+	{
+		if(x=="admin")
+		{
+			document.forms[0].submit();
+		}
+		else if(x=="nuc")
+		{
+			window.location="http://www.nucsoft.com";
+		}
+		else if(x=="parag")
+		{
+			window.location="http://www.google.com";
+		}
+		else
+		{
+			alert("Invalid Login");
+		}
+	}
+}
+    </script>
+  </head>
+  <body bgcolor="#FDFDE0">
+  <br/><br/><br/><br/><br/><br/>
+  <b><center><font color="Green">Phone GAP Login Screen</font></center></b>
+  <br/>
+  <form action="admin.html">
+    User name : <input type ="text" id="uname"/><br/>
+    Password  : &nbsp;<input type="password" id ="pwd"/><br/>
+    <input type="button" value ="Login" onClick="check()">
+    </form>
+  </body>
+</html>
